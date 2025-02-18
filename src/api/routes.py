@@ -30,17 +30,11 @@ def create_one_user():
     return jsonify({"msg":"user_created"}),201
    
 
-#----------------------------------------------------------------------------------------------------------
-
 
 @api.route("/login", methods=["POST"])
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    #name = request.json.get("name", None)
-    #lastname = request.json.get("lastname", None)
-    #age = request.json.get("age", None)
-
 
     user= User.query.filter_by(email=email ).first()
 

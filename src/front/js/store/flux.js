@@ -5,30 +5,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			message: null,
 			user: {},
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
 
 			Home: async (email, password, name, lastname, age) => {
 				console.log(email,password, name, lastname,age);
-				
+
 				try{
-					// fetching data from the backend
 					const response = await fetch(process.env.BACKEND_URL + "api/signup", {
 						method: "POST",
 						headers: {

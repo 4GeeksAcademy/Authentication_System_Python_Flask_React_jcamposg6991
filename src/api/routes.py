@@ -1,10 +1,12 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-from flask import Flask, request, jsonify, url_for, Blueprint
+from flask import Flask, request, jsonify, url_for, Blueprint, current_app
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+import json
 
 api = Blueprint('api', __name__)
 
@@ -12,11 +14,48 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+@api.route("/signup", methods=["POST"])
+def create_one_user():
+    body=json.loads(request.data)
+    new_user=User(
+        email=body["email"],
+        password=current_app.bcrypt.generate_password_hash(body["password"]).decode('utf-8'),
+        name=body["name"],
+        lastname=body["lastname"],
+        age=body["age"],
+        is_active= True
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"msg":"user_created"}),201
+   
 
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
+@api.route("/login", methods=["POST"])
+def login():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
 
-    return jsonify(response_body), 200
+    user= User.query.filter_by(email=email ).first()
+
+    if user is None :
+        return jsonify({"msg": "Bad username or password"}), 401
+    
+    valid_password= current_app.bcrypt.check_password_hash(user.password, password)
+    if valid_password is False:
+        return jsonify({"msg": "invalid password"}), 401
+
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token)
+
+
+
+@api.route("/perfil", methods=["GET"])
+@jwt_required()
+def protected():
+
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
+
+
+if __name__ == "__main__":
+    api.run()

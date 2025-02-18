@@ -1,16 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 
-export const Home = () => {
+export const Login = () => {
 	const { store, actions } = useContext(Context);
+	const navigate = useNavigate();
 	const [data, setData] = useState({
 		email: "",
-		password: "",
-		name: "",
-		lastname: "",
-		age: "",
-		is_active: "True"
+		password: ""
 	});
+
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setData((prevData) => ({
@@ -18,13 +17,20 @@ export const Home = () => {
 			[name]: value
 		}));
 	};
-	const handleLogin = (e) => {
+
+	const handleLogin = async (e) => {
 		e.preventDefault();
-		actions.Home(data.email, data.password, data.name, data.lastname, data.age);
+		const result = await actions.login(data.email, data.password);
+		if (result) {
+			navigate("/protected_route");
+		} else {
+			alert("Error logging in");
+		}
 	};
 
+	
 	const containerStyle = {
-		maxWidth: "600px",
+		maxWidth: "400px",
 		margin: "50px auto",
 		padding: "20px",
 		backgroundColor: "#f8f9fa",
@@ -50,7 +56,8 @@ export const Home = () => {
 		padding: "10px",
 		fontSize: "16px",
 		width: "100%",
-		boxSizing: "border-box"
+		boxSizing: "border-box",
+		marginBottom: "15px"
 	};
 
 	const buttonStyle = {
@@ -73,7 +80,7 @@ export const Home = () => {
 
 	return (
 		<div style={containerStyle}>
-			<h2 style={headingStyle}>Formulario de Registro</h2>
+			<h2 style={headingStyle}>Login</h2>
 			<form onSubmit={handleLogin}>
 				<div className="row mb-3">
 					<label htmlFor="inputEmail3" style={labelStyle} className="col-sm-2 col-form-label">
@@ -105,58 +112,13 @@ export const Home = () => {
 						/>
 					</div>
 				</div>
-				<div className="row mb-3">
-					<label htmlFor="inputName3" style={labelStyle} className="col-sm-2 col-form-label">
-						Name
-					</label>
-					<div className="col-sm-10">
-						<input
-							type="text"
-							style={inputStyle}
-							id="inputName3"
-							name="name"
-							value={data.name}
-							onChange={handleChange}
-						/>
-					</div>
-				</div>
-				<div className="row mb-3">
-					<label htmlFor="inputLastname3" style={labelStyle} className="col-sm-2 col-form-label">
-						Lastname
-					</label>
-					<div className="col-sm-10">
-						<input
-							type="text"
-							style={inputStyle}
-							id="inputLastname3"
-							name="lastname"
-							value={data.lastname}
-							onChange={handleChange}
-						/>
-					</div>
-				</div>
-				<div className="row mb-3">
-					<label htmlFor="inputAge3" style={labelStyle} className="col-sm-2 col-form-label">
-						Age
-					</label>
-					<div className="col-sm-10">
-						<input
-							type="number"
-							style={inputStyle}
-							id="inputAge3"
-							name="age"
-							value={data.age}
-							onChange={handleChange}
-						/>
-					</div>
-				</div>
 				<button
 					type="submit"
 					style={buttonStyle}
 					onMouseOver={(e) => (e.target.style.backgroundColor = buttonHoverStyle.backgroundColor)}
 					onMouseOut={(e) => (e.target.style.backgroundColor = buttonStyle.backgroundColor)}
 				>
-					Register
+					Login
 				</button>
 			</form>
 		</div>
